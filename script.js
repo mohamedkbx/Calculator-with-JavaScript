@@ -34,11 +34,77 @@ const buttonNumberHandler = (value) => {
   updateScreen(currentNumber);
 };
 
+// Reset Function
+const resetButtonHandler = () => {
+  storedNumber = "";
+  currentNumber = "";
+  operation = "";
+  updateScreen("0");
+};
+
+//Delete Handler
+
+const deleteButtonHandler = () => {
+  currentNumber = currentNumber.slice(0, -1);
+  updateScreen(currentNumber);
+};
+
+const executeOperation = () => {
+  if (currentNumber && storedNumber && operation) {
+    switch (operation) {
+      case "+":
+        storedNumber = parseFloat(storedNumber) + parseFloat(currentNumber);
+        break;
+      case "-":
+        storedNumber = parseFloat(storedNumber) - parseFloat(currentNumber);
+        break;
+      case "/":
+        storedNumber = parseFloat(storedNumber) / parseFloat(currentNumber);
+        break;
+      case "*":
+        storedNumber = parseFloat(storedNumber) * parseFloat(currentNumber);
+        break;
+    }
+    currentNumber = "";
+    updateScreen(storedNumber);
+  }
+};
+
+const operationButtonHandler = (operationValue) => {
+  if (!storedNumber && !currentNumber) return;
+  if (currentNumber && !storedNumber) {
+    storedNumber = currentNumber;
+    currentNumber = "";
+    operation = operationValue;
+  } else if (storedNumber) {
+    operation = operationValue;
+    currentNumber && executeOperation();
+  }
+};
+
 // Function for Keys iterate
 const keysElmentsHandler = (element) => {
   element.addEventListener("click", () => {
-    element.dataset.type === "number" && buttonNumberHandler(element.dataset.value);
+    if (element.dataset.type === "number") {
+      buttonNumberHandler(element.dataset.value);
+    } else if (element.dataset.type === "operation") {
+      switch (element.dataset.value) {
+        case "c":
+          resetButtonHandler();
+          break;
+        case "Backspace":
+          deleteButtonHandler();
+          break;
+        case "Enter":
+          executeOperation();
+          break;
+        default:
+          operationButtonHandler(element.dataset.value);
+      }
+    }
   });
 };
+
+//Execute Operation
 
 keyElments.forEach(keysElmentsHandler);
